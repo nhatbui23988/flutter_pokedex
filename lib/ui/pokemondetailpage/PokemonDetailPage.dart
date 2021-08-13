@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pokedex_project/domain/ApiService.dart';
+import 'package:pokedex_project/extension/StringExtension.dart';
+import 'package:pokedex_project/model/PokemonSpecies.dart';
 import 'package:pokedex_project/utils/image_utils.dart';
 
 class PokemonDetailPage extends StatefulWidget {
@@ -20,19 +23,31 @@ class PokemonDetailState extends State<PokemonDetailPage>
   bool _isVisibleTitle = false;
   double _extendAppBarHeight = 300;
   double _titleSize = 20;
-  double _flexSpaceMarginTop = 70;
-  double _pokeBallSize = 150;
+  double _flexSpaceMarginTop = 90;
+  String _pokemonName = "";
   late AnimationController _animationController;
+  PokemonSpecies? _pokemonSpcies;
 
   int get _pokemonId => widget._pokemonId;
 
   @override
   void initState() {
+    print("Pokemon Detail initState");
     _scrollController.addListener(onScroll);
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 5));
     _animationController.repeat();
     super.initState();
+    getPokemonSpecies(_pokemonId);
+  }
+
+  void getPokemonSpecies(int pokemonId) async {
+    _pokemonSpcies = await ApiService.getPokemonSpicies(pokemonId);
+    if (_pokemonSpcies != null) {
+      setState(() {
+        _pokemonName = _pokemonSpcies?.name.capitalize() ?? "Unknow";
+      });
+    }
   }
 
   void onScroll() {
@@ -54,18 +69,21 @@ class PokemonDetailState extends State<PokemonDetailPage>
       child: CustomScrollView(
         controller: _scrollController,
         slivers: [
+          CupertinoSliverRefreshControl(
+            onRefresh: onRefresh,
+          ),
           SliverAppBar(
-            toolbarHeight: 70,
             titleSpacing: 0,
             floating: true,
             pinned: true,
+            centerTitle: true,
             backgroundColor: Colors.redAccent,
             expandedHeight: _extendAppBarHeight,
             title: Padding(
               padding: EdgeInsets.only(left: 24),
               child: Visibility(
                 child: Text(
-                  "Pokemon Name",
+                  _pokemonName,
                   style: TextStyle(
                       fontSize: _titleSize, fontWeight: FontWeight.bold),
                 ),
@@ -78,16 +96,18 @@ class PokemonDetailState extends State<PokemonDetailPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // work như margin top
                     SizedBox(
                       height: _flexSpaceMarginTop,
                     ),
+                    // display pokemon name
                     Padding(
                         padding: EdgeInsets.only(left: 24),
                         child: Visibility(
                           child: Align(
                             alignment: Alignment.topLeft,
                             child: Text(
-                              "Pokemon Name",
+                              _pokemonName,
                               style: TextStyle(
                                   fontSize: _titleSize,
                                   fontWeight: FontWeight.bold,
@@ -96,20 +116,17 @@ class PokemonDetailState extends State<PokemonDetailPage>
                           ),
                           visible: !_isVisibleTitle,
                         )),
-                    Container(
-                      height: _extendAppBarHeight -
-                          _flexSpaceMarginTop -
-                          _titleSize,
-                      child: LayoutBuilder(builder: (buildContext, constraints) {
-                        print("#maxHeight ${constraints.maxHeight}");
-                        print("#minHeight ${constraints.minHeight}");
-                        print("#maxWidth ${constraints.maxWidth}");
-                        print("#minWidth ${constraints.minWidth}");
-                        print("#hasBoundedHeight ${constraints.hasBoundedHeight}");
-                        print("#hasBoundedWidth ${constraints.hasBoundedWidth}");
-                        print("#hasTightHeight ${constraints.hasTightHeight}");
-                        print("#hasTightWidth ${constraints.hasTightWidth}");
-                        print("#biggest ${constraints.biggest}");
+                    // ListView(
+                    //   scrollDirection: Axis.horizontal,
+                    //   children: _pokemonSpcies?.pkmGroupName
+                    //           .map((e) => _buildPkmGroupName(e))
+                    //           .toList() ??
+                    //       [],
+                    // ),
+                    // display pokemon image
+                    Expanded(
+                      child:
+                          LayoutBuilder(builder: (buildContext, constraints) {
                         return Container(
                           alignment: Alignment.bottomCenter,
                           child: Stack(
@@ -118,18 +135,19 @@ class PokemonDetailState extends State<PokemonDetailPage>
                                 animation: _animationController.view,
                                 builder: (buildContext, child) {
                                   return Transform.rotate(
-                                      angle: _animationController.value *
-                                          2 *
-                                          pi,
+                                      angle:
+                                          _animationController.value * 2 * pi,
                                       child: Image(
+                                        height: constraints.maxHeight-10,
                                         image: ImageUtils.pokeball_black,
                                         color: Colors.white70,
                                       ));
                                 },
                               ),
                               CachedNetworkImage(
+                                height: constraints.maxHeight-20,
                                 imageUrl:
-                                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+                                    ApiService.getPokemonImageUrl(_pokemonId),
                               )
                             ],
                             alignment: Alignment.bottomCenter,
@@ -151,6 +169,12 @@ class PokemonDetailState extends State<PokemonDetailPage>
         ],
       ),
     );
+  }
+
+  Widget _buildPkmGroupName(String e) => Container(child: Text(e),);
+
+  Future<void> onRefresh() async {
+    setState(() {});
   }
 
   @override

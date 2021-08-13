@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pokedex_project/domain/ApiService.dart';
 import 'package:pokedex_project/extension/StringExtension.dart';
 import 'package:pokedex_project/model/Pokemon.dart';
+import 'package:pokedex_project/ui/pokemondetailpage/PokemonDetailPage.dart';
 import 'package:pokedex_project/utils/image_utils.dart';
 
 class PokedexPage extends StatefulWidget {
@@ -47,6 +48,16 @@ class PokedexPageState extends State<PokedexPage>
     }
   }
 
+  Future<void> onRefresh() async {
+    setState(() {
+      _offset = 0;
+      _pokemonList = [];
+      _canLoadMore = true;
+      _isLoading = true;
+      getPokemonData();
+    });
+  }
+
   void getPokemonData() async {
     print("getPokemonData");
     print("#1 fetchPokedex offset: $_offset, itemPerpage: $itemsPerPage");
@@ -73,6 +84,9 @@ class PokedexPageState extends State<PokedexPage>
       child: CustomScrollView(
         controller: _scrollController,
         slivers: [
+          CupertinoSliverRefreshControl(
+            onRefresh: onRefresh,
+          ),
           SliverAppBar(
               backgroundColor: Colors.redAccent,
               title: Text("Pokedex"),
@@ -87,7 +101,7 @@ class PokedexPageState extends State<PokedexPage>
             sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                     (buildContext, index) =>
-                        buildPokemonCard(index + 1, _pokemonList[index]),
+                        buildPokemonCard(buildContext, index + 1, _pokemonList[index]),
                     childCount: _pokemonList.length),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     mainAxisSpacing: 6,
@@ -111,7 +125,8 @@ class PokedexPageState extends State<PokedexPage>
   }
 }
 
-Widget buildPokemonCard(int index, PokemonInfo pokemonInfo) {
+Widget buildPokemonCard(
+    BuildContext context, int index, PokemonInfo pokemonInfo) {
   print("buildPokemonCard");
   print("#1 index: $index");
   print("#2 name: ${pokemonInfo.name}");
@@ -125,37 +140,42 @@ Widget buildPokemonCard(int index, PokemonInfo pokemonInfo) {
           shadows: [
             BoxShadow(offset: Offset(3, 3), color: Colors.grey, blurRadius: 1)
           ]),
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: Container(
-              margin: EdgeInsets.only(right: 12),
-              child: Text(
-                "#$index",
-                style: TextStyle(fontSize: 14, decoration: TextDecoration.none),
+      child: TextButton(
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                margin: EdgeInsets.only(right: 12),
+                child: Text(
+                  "#$index",
+                  style:
+                      TextStyle(fontSize: 14, decoration: TextDecoration.none),
+                ),
               ),
             ),
-          ),
-          Expanded(
-              child: CachedNetworkImage(
-            placeholder: (context, url) =>
-                Image(image: ImageUtils.pokeball_logo),
-            imageUrl: ApiService.getPokemonImageUrl(index),
-          )),
-          Padding(
-            padding: EdgeInsets.all(6),
-            child: Center(
-              child: Text(
-                pokemonInfo.name.capitalize(),
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.none,
-                    color: Colors.black),
+            Expanded(
+                child: CachedNetworkImage(
+              placeholder: (context, url) =>
+                  Image(image: ImageUtils.pokeball_logo),
+              imageUrl: ApiService.getPokemonImageUrl(index),
+            )),
+            Padding(
+              padding: EdgeInsets.all(6),
+              child: Center(
+                child: Text(
+                  pokemonInfo.name.capitalize(),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
+                      color: Colors.black),
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
+        onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (builder) => PokemonDetailPage(index))),
       ));
 }

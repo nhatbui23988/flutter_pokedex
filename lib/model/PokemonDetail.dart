@@ -1,20 +1,20 @@
 import 'package:pokedex_project/model/PokemonStats.dart';
 
 class PokemonDetail {
-  final int _base_experience;
-  final int _height;
-  final int _weight;
-  final String _name;
-  final List<BaseStat> _pokemonStat;
+  final int base_experience;
+  final int height;
+  final int weight;
+  final String name;
+  final List<BaseStat> pokemonStat;
 
-  const PokemonDetail(this._base_experience, this._name, this._weight, this._height, this._pokemonStat);
+  const PokemonDetail(this.base_experience, this.name, this.weight, this.height, this.pokemonStat);
 
   PokemonDetail.fromJson(Map<String, dynamic> json)
-      : _base_experience = json['base_experience'],
-        _height=json['height'],
-        _weight =json['weight'],
-        _name =json['name'],
-        _pokemonStat = BaseStat.parseListBaseFromJson(json);
+      : base_experience = json['base_experience'],
+        height=json['height'],
+        weight =json['weight'],
+        name =json['name'],
+        pokemonStat = BaseStat.parseListBaseFromJson(json);
 }
 const PokemonDetail _pokemonDetail = PokemonDetail(64, "Pikachu", 10, 70, _listStat);
 const List<BaseStat> _listStat = [BaseStat("attack", 64), BaseStat("defense", 64),];

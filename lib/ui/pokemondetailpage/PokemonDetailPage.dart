@@ -197,6 +197,7 @@ class PokemonDetailState extends State<PokemonDetailPage>
   Widget _buildTabAbout() => Container(margin: EdgeInsets.symmetric(vertical: 12, horizontal: 12), child: Column(
     children: [
       Container(
+
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Text(
           _pokemonSpcies?.listFlavorText[0].flavorText

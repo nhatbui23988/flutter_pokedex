@@ -48,13 +48,6 @@ class PokemonDetailHeaderWidget extends StatelessWidget {
         ),
         visible: _isVisibleTitle,
       ),
-      bottom: TabBar(
-        tabs: [
-          _buildTabTitle("About"),
-          _buildTabTitle("Base Stat"),
-          _buildTabTitle("Ability"),
-        ],
-      ),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           color: _backgroundColor ?? Colors.white,
@@ -153,11 +146,6 @@ class PokemonDetailHeaderWidget extends StatelessWidget {
     );
   }
 }
-
-Widget _buildTabTitle(String title) => Text(
-  title,
-  style: TextStyle(color: Colors.black),
-);
 
 Widget _buildPkmTypeName(String typeName) => Container(
       constraints: BoxConstraints(minWidth: 70),

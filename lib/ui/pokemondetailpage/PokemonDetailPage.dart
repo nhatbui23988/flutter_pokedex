@@ -5,7 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex_project/domain/ApiService.dart';
 import 'package:pokedex_project/extension/StringExtension.dart';
+import 'package:pokedex_project/model/PokemonDetail.dart';
 import 'package:pokedex_project/model/PokemonSpecies.dart';
+import 'package:pokedex_project/ui/pokemondetailpage/widget/HeaderWidget.dart';
+import 'package:pokedex_project/utils/color_utils.dart';
 import 'package:pokedex_project/utils/image_utils.dart';
 
 class PokemonDetailPage extends StatefulWidget {
@@ -19,46 +22,92 @@ class PokemonDetailPage extends StatefulWidget {
 
 class PokemonDetailState extends State<PokemonDetailPage>
     with SingleTickerProviderStateMixin {
-  ScrollController _scrollController = ScrollController();
   bool _isVisibleTitle = false;
   double _extendAppBarHeight = 300;
   double _titleSize = 20;
+  double _largeTitleSize = 30;
   double _flexSpaceMarginTop = 90;
+  double _tabBarMaxSize = kToolbarHeight * 2;
+  double _tabBarMinSize = kToolbarHeight / 2;
+  double _tabBarHeight = 0;
+  double _emptyMinSize = 0;
+  double _emptyMaxSize = kToolbarHeight * 1.5;
+  double _emptyContainerHeight = 0;
+
   String _pokemonName = "";
-  late AnimationController _animationController;
+
+  //
   PokemonSpecies? _pokemonSpcies;
+  PokemonDetail? _pokemonDetail;
+  Color? _backgroundColor;
+
+  //
+  ScrollController _scrollController = ScrollController();
+  late AnimationController _animationController;
 
   int get _pokemonId => widget._pokemonId;
 
   @override
   void initState() {
-    print("Pokemon Detail initState");
+    _tabBarHeight = _tabBarMinSize;
+    _emptyContainerHeight = _emptyMinSize;
     _scrollController.addListener(onScroll);
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 5));
     _animationController.repeat();
     super.initState();
+    getPokemonDetail(_pokemonId);
     getPokemonSpecies(_pokemonId);
   }
 
   void getPokemonSpecies(int pokemonId) async {
     _pokemonSpcies = await ApiService.getPokemonSpicies(pokemonId);
     if (_pokemonSpcies != null) {
-      setState(() {
-        _pokemonName = _pokemonSpcies?.name.capitalize() ?? "Unknow";
-      });
+      setState(() {});
     }
+  }
+
+  void getPokemonDetail(int pokemonId) async {
+    print("getPokemonDetail");
+    _pokemonDetail = await ApiService.getPokemonDetail(pokemonId);
+    print("#1 Pkm name: ${_pokemonDetail?.name}");
+    print("#2 Type name: ${_pokemonDetail?.listType[0].name}");
+    print("#3 Type size: ${_pokemonDetail?.listType.length}");
+    setState(() {
+      _pokemonName = _pokemonDetail?.name.capitalize() ?? "Unknow";
+      _backgroundColor =
+          AppColors.colorType(_pokemonDetail?.listType[0].name ?? "");
+    });
   }
 
   void onScroll() {
     if (!_scrollController.hasClients) return;
     var offset = _scrollController.offset;
+    print("onScroll");
+    print("#offset $offset");
+    print("#_extendAppBarHeight $_extendAppBarHeight");
+    print("#TabBar ${kToolbarHeight * 1.5}");
     var visibleHeight = _extendAppBarHeight - (kToolbarHeight + 120);
     var isShow = offset > visibleHeight;
     if (_isVisibleTitle != isShow) {
       setState(() {
         _isVisibleTitle = isShow;
       });
+    }
+    if (offset > _extendAppBarHeight - kToolbarHeight * 0.5) {
+      if (_tabBarHeight != _tabBarMaxSize) {
+        setState(() {
+          _tabBarHeight = _tabBarMaxSize;
+          _emptyContainerHeight = _emptyMaxSize;
+        });
+      }
+    } else {
+      if (_tabBarHeight != _tabBarMinSize) {
+        setState(() {
+          _tabBarHeight = _tabBarMinSize;
+          _emptyContainerHeight = _emptyMinSize;
+        });
+      }
     }
   }
 
@@ -72,106 +121,101 @@ class PokemonDetailState extends State<PokemonDetailPage>
           CupertinoSliverRefreshControl(
             onRefresh: onRefresh,
           ),
-          SliverAppBar(
-            titleSpacing: 0,
-            floating: true,
-            pinned: true,
-            centerTitle: true,
-            backgroundColor: Colors.redAccent,
-            expandedHeight: _extendAppBarHeight,
-            title: Padding(
-              padding: EdgeInsets.only(left: 24),
-              child: Visibility(
-                child: Text(
-                  _pokemonName,
-                  style: TextStyle(
-                      fontSize: _titleSize, fontWeight: FontWeight.bold),
-                ),
-                visible: _isVisibleTitle,
-              ),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                color: Colors.redAccent,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // work như margin top
-                    SizedBox(
-                      height: _flexSpaceMarginTop,
-                    ),
-                    // display pokemon name
-                    Padding(
-                        padding: EdgeInsets.only(left: 24),
-                        child: Visibility(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              _pokemonName,
-                              style: TextStyle(
-                                  fontSize: _titleSize,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          ),
-                          visible: !_isVisibleTitle,
-                        )),
-                    // ListView(
-                    //   scrollDirection: Axis.horizontal,
-                    //   children: _pokemonSpcies?.pkmGroupName
-                    //           .map((e) => _buildPkmGroupName(e))
-                    //           .toList() ??
-                    //       [],
-                    // ),
-                    // display pokemon image
-                    Expanded(
-                      child:
-                          LayoutBuilder(builder: (buildContext, constraints) {
-                        return Container(
-                          alignment: Alignment.bottomCenter,
-                          child: Stack(
-                            children: [
-                              AnimatedBuilder(
-                                animation: _animationController.view,
-                                builder: (buildContext, child) {
-                                  return Transform.rotate(
-                                      angle:
-                                          _animationController.value * 2 * pi,
-                                      child: Image(
-                                        height: constraints.maxHeight-10,
-                                        image: ImageUtils.pokeball_black,
-                                        color: Colors.white70,
-                                      ));
-                                },
-                              ),
-                              CachedNetworkImage(
-                                height: constraints.maxHeight-20,
-                                imageUrl:
-                                    ApiService.getPokemonImageUrl(_pokemonId),
-                              )
-                            ],
-                            alignment: Alignment.bottomCenter,
-                            fit: StackFit.passthrough,
-                          ),
-                        );
-                      }),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
+          PokemonDetailHeaderWidget(
+              this._pokemonId,
+              this._animationController,
+              this._backgroundColor,
+              this._pokemonName,
+              this._isVisibleTitle,
+              this._titleSize,
+              this._largeTitleSize,
+              this._extendAppBarHeight,
+              this._flexSpaceMarginTop,
+              this._pokemonDetail?.listType ?? []),
           SliverFillRemaining(
             child: Container(
-              height: 500,
+              color: _backgroundColor,
+              child: DefaultTabController(
+                  length: 3,
+                  child: Scaffold(
+                    appBar: PreferredSize(
+                      preferredSize: Size.fromHeight(_tabBarHeight),
+                      child: Container(
+                        color: _backgroundColor,
+                        child: Column(
+                          children: [
+                            Container(
+                              height: _emptyContainerHeight,
+                              color: _backgroundColor,
+                            ),
+                            Expanded(
+                                child: Container(
+                              child: TabBar(
+                                tabs: [
+                                  _buildTabTitle("About"),
+                                  _buildTabTitle("Base Stat"),
+                                  _buildTabTitle("Ability"),
+                                ],
+                              ),
+                              decoration: ShapeDecoration(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(20))),
+                                  color: Colors.white),
+                            ))
+                          ],
+                        ),
+                      ),
+                    ),
+                    body: Container(
+                      child: TabBarView(
+                        children: [
+                          _buildTabAbout(),
+                          Center(child: Text("Transit")),
+                          Center(child: Text("Bike"))
+                        ],
+                      ),
+                      decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(30))),
+                          color: Colors.white),
+                    ),
+                  )),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPkmGroupName(String e) => Container(child: Text(e),);
+  Widget _buildTabTitle(String title) => Text(
+        title,
+        style: TextStyle(color: Colors.black),
+      );
+
+  Widget _buildTabAbout() => Container(margin: EdgeInsets.symmetric(vertical: 12, horizontal: 12), child: Column(
+    children: [
+      Container(
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Text(
+          _pokemonSpcies?.listFlavorText[0].flavorText
+              .replaceAll(RegExp("\n"), " ") ??
+              "",
+          style: TextStyle(
+              fontSize: 14,
+              fontStyle: FontStyle.italic,
+              decoration: TextDecoration.none,
+              fontWeight: FontWeight.normal),
+        ),
+        decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16)),
+            color: Colors.grey[200]),
+      ),
+      Container()
+    ],
+  ),);
 
   Future<void> onRefresh() async {
     setState(() {});

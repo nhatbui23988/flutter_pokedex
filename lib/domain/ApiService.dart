@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:pokedex_project/model/Pokemon.dart';
 import 'package:http/http.dart' as http;
+import 'package:pokedex_project/model/Pokemon.dart';
 import 'package:pokedex_project/model/PokemonDetail.dart';
 import 'package:pokedex_project/model/PokemonSpecies.dart';
 
-const String urlPokemonName = "https://pokeapi.co/api/v2/pokemon";
+const String urlPokemon = "https://pokeapi.co/api/v2/pokemon";
 const String urlPokemonSpecies = "https://pokeapi.co/api/v2/pokemon-species/";
 
 const String urlPokemonImage =
@@ -16,8 +16,8 @@ const String paramsLimit = "limit";
 const String paramsPrefixPng = ".png";
 
 class ApiService {
-  static String getPokemonNameUrl(int offset, int limit) =>
-      "$urlPokemonName/?$paramsOffset=$offset&$paramsLimit=$limit";
+  static String getPokemonsUrl(int offset, int limit) =>
+      "$urlPokemon/?$paramsOffset=$offset&$paramsLimit=$limit";
 
   static String getPokemonImageUrl(int index) =>
       "$urlPokemonImage/$index$paramsPrefixPng";
@@ -25,11 +25,12 @@ class ApiService {
   static String getPokemonSpeciesUrl(int pokemonId) =>
       "$urlPokemonSpecies/$pokemonId";
 
+  static String getPokemonDetailUrl(int pokemonId) => "$urlPokemon/$pokemonId";
+
   static Future<List<PokemonInfo>> fetchPokedex(int offset, int limit) async {
     print("fetchPokedex");
-    print("url: ${ApiService.getPokemonNameUrl(offset, limit)}");
-    final response =
-        await http.get(Uri.parse(ApiService.getPokemonNameUrl(offset, limit)));
+    print("url: ${ApiService.getPokemonsUrl(offset, limit)}");
+    final response = await http.get(Uri.parse(getPokemonsUrl(offset, limit)));
     if (response.statusCode == 200) {
       print("#1 statusCode == 200");
       List<PokemonInfo> pokemons =
@@ -49,7 +50,7 @@ class ApiService {
 
   static Future<PokemonSpecies?> getPokemonSpicies(int pokemonId) async {
     print("getPokemonSpicies");
-    print("url: ${ApiService.getPokemonSpeciesUrl(pokemonId)}");
+    print("url: ${getPokemonSpeciesUrl(pokemonId)}");
     final response =
         await http.get(Uri.parse(ApiService.getPokemonSpeciesUrl(pokemonId)));
     if (response.statusCode == 200) {
@@ -58,6 +59,21 @@ class ApiService {
           PokemonSpecies.fromJson(jsonDecode(response.body));
       return pokemonSpecies;
     } else {
+      return null;
+    }
+  }
+
+  static Future<PokemonDetail?> getPokemonDetail(int pokemonId) async {
+    print("getPokemonDetail");
+    print("#1 Url ${getPokemonDetailUrl(pokemonId)}");
+    final response = await http.get(Uri.parse(getPokemonDetailUrl(pokemonId)));
+    if (response.statusCode == 200) {
+      print("#2 response.statusCode == 200");
+      PokemonDetail pokemonDetail =
+          PokemonDetail.fromJson(jsonDecode(response.body));
+      return pokemonDetail;
+    } else {
+      print("#2 response.statusCode = ${response.statusCode}");
       return null;
     }
   }

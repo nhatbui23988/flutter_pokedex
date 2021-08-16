@@ -1,12 +1,10 @@
 import 'dart:convert';
 
 import 'package:pokedex_project/model/FlavorText.dart';
-import 'package:pokedex_project/model/PokemonColor.dart';
 
 class PokemonSpecies {
   final int baseHappiness;
   final int captureRate;
-  final String color;
   final String name;
   final List<String> pkmGroupName;
   final List<FlavorText> listFlavorText;
@@ -15,7 +13,6 @@ class PokemonSpecies {
       : baseHappiness = json['base_happiness'],
         captureRate = json['capture_rate'],
         name = json['name'],
-        color = PokemonColor.getColorName(json),
         pkmGroupName = getGroupName(json),
         listFlavorText = FlavorText.parseListFlavorFromJson(json);
 

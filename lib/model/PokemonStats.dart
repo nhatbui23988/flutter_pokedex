@@ -13,7 +13,7 @@ class BaseStat {
   static String parseFromJson(Map<String, dynamic> json) {
     if (json['stat'] != null) {
       var jsonName = json['stat'];
-      return jsonDecode(json['name']);
+      return jsonName['name'];
     } else
       return "";
   }
@@ -22,7 +22,7 @@ class BaseStat {
     if (json['stats'] != null) {
       var jsonObject = json['stats'] as List;
       List<BaseStat> listStat =
-      jsonObject.map((jsonStat) => BaseStat.fromJson(jsonStat)).toList();
+          jsonObject.map((jsonStat) => BaseStat.fromJson(jsonStat)).toList();
       return listStat;
     } else
       return [];

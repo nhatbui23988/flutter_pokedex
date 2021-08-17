@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 class BaseStat {
-  final int _baseStat;
-  final String _statName;
+  final int baseStat;
+  final String statName;
 
-  const BaseStat(this._statName, this._baseStat);
+  const BaseStat(this.statName, this.baseStat);
 
   BaseStat.fromJson(Map<String, dynamic> json)
-      : _baseStat = json['base_stat'],
-        _statName = parseFromJson(json);
+      : baseStat = json['base_stat'],
+        statName = parseFromJson(json);
 
   static String parseFromJson(Map<String, dynamic> json) {
     if (json['stat'] != null) {

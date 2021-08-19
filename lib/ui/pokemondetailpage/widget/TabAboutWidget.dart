@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex_project/model/PokemonDetail.dart';
 import 'package:pokedex_project/model/PokemonSpecies.dart';
+import 'package:pokedex_project/extension/StringExtension.dart';
 
 class TabAboutPokemon extends StatelessWidget {
   final PokemonSpecies? _pokemonSpcies;
@@ -12,13 +13,14 @@ class TabAboutPokemon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: ListView(
-        primary: false,
-        physics: const NeverScrollableScrollPhysics(),
+        // primary: false,
+        // physics: const NeverScrollableScrollPhysics(),
         children: [
           _buildDescriptionText(),
-          _buildBasePokemonData(),
+          _buildBaseStats(),
+          _buildBaseInformation(),
           _buildTrainingInfo()
         ],
       ),
@@ -26,7 +28,8 @@ class TabAboutPokemon extends StatelessWidget {
   }
 
   Widget _buildDescriptionText() => Container(
-        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         child: Text(
           "\"${_pokemonSpcies?.listFlavorText[0].flavorText.replaceAll(RegExp("\n"), " ") ?? ""}\"",
           style: TextStyle(
@@ -41,8 +44,22 @@ class TabAboutPokemon extends StatelessWidget {
             color: Colors.grey[200]),
       );
 
-  Widget _buildBasePokemonData() => Container(
-        margin: EdgeInsets.symmetric(vertical: 20),
+  Widget _buildBaseStats() => Container(
+    margin: EdgeInsets.symmetric(vertical: 6),
+        child: ListView.builder(
+            primary: false,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _pokemonDetail?.pokemonStat.length ?? 0,
+            itemBuilder: (buildContext, index) {
+              return _buildStatProgress(
+                  _pokemonDetail?.pokemonStat[index].statName ?? "",
+                  _pokemonDetail?.pokemonStat[index].baseStat ?? 1);
+            }),
+      );
+
+  Widget _buildBaseInformation() => Container(
+        margin: EdgeInsets.symmetric(vertical: 12),
         padding: EdgeInsets.all(12),
         decoration: ShapeDecoration(
             shadows: [
@@ -88,6 +105,7 @@ class TabAboutPokemon extends StatelessWidget {
       );
 
   Widget _buildTrainingInfo() => Container(
+    margin: EdgeInsets.only(top: 6),
         alignment: Alignment.topLeft,
         child: Column(
           children: [
@@ -110,4 +128,43 @@ class TabAboutPokemon extends StatelessWidget {
           ],
         ),
       );
+
+  Widget _buildStatProgress(String statName, int statValue,
+      {Color statColor = Colors.redAccent}) {
+    double maxBaseStat = 200;
+    double spacing = 16;
+    double baseHeight = 4;
+    double maxWidth = 200;
+    double statWidth = 200 / maxBaseStat * statValue;
+    Color baseColor = Colors.grey;
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+              child: Text(
+            statName.capitalize(),
+            style: TextStyle(fontWeight: FontWeight.bold),
+          )),
+          SizedBox(width: spacing),
+          Text("$statValue"),
+          SizedBox(width: spacing),
+          Stack(
+            children: [
+              Container(
+                height: baseHeight,
+                width: maxWidth,
+                color: baseColor,
+              ),
+              Container(
+                height: baseHeight,
+                width: statWidth,
+                color: statColor,
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
 }

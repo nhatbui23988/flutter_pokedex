@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:pokedex_project/domain/ApiService.dart';
 import 'package:pokedex_project/extension/StringExtension.dart';
 import 'package:pokedex_project/model/PokemonType.dart';
+import 'package:pokedex_project/utils/color_utils.dart';
 import 'package:pokedex_project/utils/image_utils.dart';
 
 class PokemonDetailHeaderWidget extends StatelessWidget {
@@ -202,12 +203,12 @@ Widget _buildPkmTypeName(String typeName) => Container(
       margin: EdgeInsets.only(right: 6),
       alignment: Alignment.center,
       decoration:
-          ShapeDecoration(shape: StadiumBorder(), color: Colors.white24),
+          ShapeDecoration(shape: StadiumBorder(), color: Colors.white70),
       child: Text(
         typeName.capitalize(),
         style: TextStyle(
           fontSize: 14,
-          color: Colors.white,
+          color: AppColors.colorType(typeName),
           fontWeight: FontWeight.bold,
         ),
       ),

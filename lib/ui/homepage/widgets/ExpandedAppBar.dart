@@ -86,6 +86,9 @@ Widget _buildSearchView(BuildContext context) => Container(
         Expanded(
           // input field search here
           child: TextField(
+            onSubmitted: (keyword)=>(){
+
+            },
             style: TextStyle(fontSize: 16),
             decoration: InputDecoration(
                 isDense: true,

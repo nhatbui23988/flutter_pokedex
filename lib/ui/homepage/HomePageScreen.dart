@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex_project/ui/homepage/widgets/ExpandedAppBar.dart';
-import 'package:pokedex_project/utils/color_utils.dart';
 import 'package:pokedex_project/utils/image_utils.dart';
 
 class HomePage extends StatefulWidget {

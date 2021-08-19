@@ -7,8 +7,8 @@ import 'package:pokedex_project/model/PokemonSpecies.dart';
 import 'package:pokedex_project/ui/pokemondetailpage/widget/HeaderWidget.dart';
 import 'package:pokedex_project/ui/pokemondetailpage/widget/TabAboutWidget.dart';
 import 'package:pokedex_project/ui/pokemondetailpage/widget/TabBarHeaderWidget.dart';
-import 'package:pokedex_project/ui/pokemondetailpage/widget/TabPokemonStatWidget.dart';
 import 'package:pokedex_project/utils/color_utils.dart';
+import 'package:pokedex_project/utils/image_utils.dart';
 
 class PokemonDetailPage extends StatefulWidget {
   final int _pokemonId;
@@ -27,6 +27,9 @@ class PokemonDetailState extends State<PokemonDetailPage>
   double _largeTitleSize = 30;
   double _flexSpaceMarginTop = 90;
   bool _isPinned = false;
+  bool _isLoading = false;
+  bool _isVisibleLoading = true;
+  int _countApiCompleted = 0;
 
   String _pokemonName = "";
 
@@ -48,15 +51,21 @@ class PokemonDetailState extends State<PokemonDetailPage>
         AnimationController(vsync: this, duration: Duration(seconds: 5));
     _animationController.repeat();
     super.initState();
+    setState(() {
+      _isLoading = true;
+    });
     getPokemonDetail(_pokemonId);
     getPokemonSpecies(_pokemonId);
   }
 
   void getPokemonSpecies(int pokemonId) async {
     _pokemonSpcies = await ApiService.getPokemonSpicies(pokemonId);
-    if (_pokemonSpcies != null) {
-      setState(() {});
-    }
+    setState(() {
+      _countApiCompleted++;
+      if (_countApiCompleted >= 2) {
+        _isLoading = false;
+      }
+    });
   }
 
   void getPokemonDetail(int pokemonId) async {
@@ -66,6 +75,10 @@ class PokemonDetailState extends State<PokemonDetailPage>
     print("#2 Type name: ${_pokemonDetail?.listType[0].name}");
     print("#3 Type size: ${_pokemonDetail?.listType.length}");
     setState(() {
+      _countApiCompleted++;
+      if (_countApiCompleted >= 2) {
+        _isLoading = false;
+      }
       _pokemonName = _pokemonDetail?.name.capitalize() ?? "Unknow";
       _backgroundColor =
           AppColors.colorType(_pokemonDetail?.listType[0].name ?? "");
@@ -98,39 +111,62 @@ class PokemonDetailState extends State<PokemonDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: DefaultTabController(
-        length: 2,
-        child: NestedScrollView(
-            controller: _scrollController,
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-              return [
-                PokemonDetailHeaderWidget(
-                    this._pokemonId,
-                    this._animationController,
-                    this._backgroundColor,
-                    this._pokemonName,
-                    this._isVisibleTitle,
-                    this._titleSize,
-                    this._largeTitleSize,
-                    this._extendAppBarHeight,
-                    this._flexSpaceMarginTop,
-                    this._pokemonDetail?.listType ?? []),
-                TabBarInformationHeader(_isPinned, _backgroundColor)
-              ];
-            },
-            body: Container(
-              child: TabBarView(
-                children: [
-                  TabAboutPokemon(_pokemonSpcies, _pokemonDetail),
-                  TabPokemonStats(_pokemonDetail),
-                ],
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        body: LayoutBuilder(builder: (buildContext, constraints) {
+          return Stack(
+            children: [
+              NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder:
+                    (BuildContext context, bool innerBoxIsScrolled) {
+                  return [
+                    PokemonDetailHeaderWidget(
+                        this._pokemonId,
+                        this._animationController,
+                        this._backgroundColor,
+                        this._pokemonName,
+                        this._isVisibleTitle,
+                        this._titleSize,
+                        this._largeTitleSize,
+                        this._extendAppBarHeight,
+                        this._flexSpaceMarginTop,
+                        this._pokemonDetail?.listType ?? []),
+                    TabBarInformationHeader(_isPinned, _backgroundColor)
+                  ];
+                },
+                body: TabAboutPokemon(_pokemonSpcies, _pokemonDetail),
               ),
-            )),
-      ),
-    );
+              _buildLoading(constraints)
+            ],
+          );
+        }));
   }
+
+  Widget _buildLoading(BoxConstraints constraints) => Visibility(child: AnimatedOpacity(
+    onEnd: ()=>setState((){
+      _isVisibleLoading = false;
+    }),
+    // If the widget is visible, animate to 0.0 (invisible).
+    // If the widget is hidden, animate to 1.0 (fully visible).
+    opacity: _isLoading ? 1.0 : 0.0,
+    duration: const Duration(milliseconds: 1000),
+    // The green box must be a child of the AnimatedOpacity widget.
+    child: Container(
+      alignment: Alignment.center,
+      width: constraints.maxWidth,
+      height: constraints.maxHeight,
+      color: Colors.white,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: Image(
+          image: ImageUtils.char_walking,
+          width: 150,
+          height: 150,
+        ),
+      ),
+    ),
+  ), visible: _isVisibleLoading,);
 
   Future<void> onRefresh() async {
     setState(() {});

@@ -17,20 +17,11 @@ class TabBarInformationHeader extends StatelessWidget {
           Container(
             height: kToolbarHeight,
             alignment: Alignment.center,
-            child: TabBar(
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
-                indicatorWeight: 2.5,
-                indicatorSize: TabBarIndicatorSize.label,
-                labelPadding: EdgeInsets.symmetric(vertical: 6),
-                tabs: [
-                  Tab(text: "About"),
-                  Tab(text: "Base Stat"),
-                ]),
+            child: Text("About Pokemon", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
             decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(36))),
+                        BorderRadius.vertical(top: Radius.circular(24))),
                 color: Colors.white),
           ),
           _backgroundColor ?? Colors.white),

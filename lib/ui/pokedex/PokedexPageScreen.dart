@@ -176,6 +176,6 @@ Widget buildPokemonCard(
           ],
         ),
         onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (builder) => PokemonDetailPage(index))),
+            MaterialPageRoute(builder: (builder) => PokemonDetailPage(index, null))),
       ));
 }

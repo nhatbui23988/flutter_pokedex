@@ -12,8 +12,9 @@ import 'package:pokedex_project/utils/image_utils.dart';
 
 class PokemonDetailPage extends StatefulWidget {
   final int _pokemonId;
+  final PokemonDetail? _pokemonDetail;
 
-  const PokemonDetailPage(this._pokemonId);
+  const PokemonDetailPage(this._pokemonId, this._pokemonDetail);
 
   @override
   PokemonDetailState createState() => PokemonDetailState();
@@ -44,18 +45,31 @@ class PokemonDetailState extends State<PokemonDetailPage>
 
   int get _pokemonId => widget._pokemonId;
 
+  PokemonDetail? get _pokemonSearchResult => widget._pokemonDetail;
+
   @override
   void initState() {
     _scrollController.addListener(onScroll);
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 5));
     _animationController.repeat();
-    super.initState();
     setState(() {
       _isLoading = true;
     });
-    getPokemonDetail(_pokemonId);
-    getPokemonSpecies(_pokemonId);
+    if (_pokemonSearchResult != null) {
+      setState(() {
+        _pokemonDetail = _pokemonSearchResult;
+        _pokemonName = _pokemonDetail?.name.capitalize() ?? "Unknow";
+        _backgroundColor =
+            AppColors.colorType(_pokemonDetail?.listType[0].name ?? "");
+      });
+      _countApiCompleted++;
+      getPokemonSpecies(_pokemonId);
+    } else {
+      getPokemonDetail(_pokemonId);
+      getPokemonSpecies(_pokemonId);
+    }
+    super.initState();
   }
 
   void getPokemonSpecies(int pokemonId) async {
@@ -70,7 +84,7 @@ class PokemonDetailState extends State<PokemonDetailPage>
 
   void getPokemonDetail(int pokemonId) async {
     print("getPokemonDetail");
-    _pokemonDetail = await ApiService.getPokemonDetail(pokemonId);
+    _pokemonDetail = await ApiService.getPokemonDetailByID(pokemonId);
     print("#1 Pkm name: ${_pokemonDetail?.name}");
     print("#2 Type name: ${_pokemonDetail?.listType[0].name}");
     print("#3 Type size: ${_pokemonDetail?.listType.length}");
@@ -143,34 +157,33 @@ class PokemonDetailState extends State<PokemonDetailPage>
         }));
   }
 
-  Widget _buildLoading(BoxConstraints constraints) => Visibility(child: AnimatedOpacity(
-    onEnd: ()=>setState((){
-      _isVisibleLoading = false;
-    }),
-    // If the widget is visible, animate to 0.0 (invisible).
-    // If the widget is hidden, animate to 1.0 (fully visible).
-    opacity: _isLoading ? 1.0 : 0.0,
-    duration: const Duration(milliseconds: 1000),
-    // The green box must be a child of the AnimatedOpacity widget.
-    child: Container(
-      alignment: Alignment.center,
-      width: constraints.maxWidth,
-      height: constraints.maxHeight,
-      color: Colors.white,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: Image(
-          image: ImageUtils.char_walking,
-          width: 150,
-          height: 150,
+  Widget _buildLoading(BoxConstraints constraints) => Visibility(
+        child: AnimatedOpacity(
+          onEnd: () => setState(() {
+            _isVisibleLoading = false;
+          }),
+          // If the widget is visible, animate to 0.0 (invisible).
+          // If the widget is hidden, animate to 1.0 (fully visible).
+          opacity: _isLoading ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 1000),
+          // The green box must be a child of the AnimatedOpacity widget.
+          child: Container(
+            alignment: Alignment.center,
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            color: Colors.white,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image(
+                image: ImageUtils.char_walking,
+                width: 150,
+                height: 150,
+              ),
+            ),
+          ),
         ),
-      ),
-    ),
-  ), visible: _isVisibleLoading,);
-
-  Future<void> onRefresh() async {
-    setState(() {});
-  }
+        visible: _isVisibleLoading,
+      );
 
   @override
   void dispose() {

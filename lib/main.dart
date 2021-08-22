@@ -53,7 +53,7 @@ class DebugScreen extends StatelessWidget {
                   onPressed: () =>
                       Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                              builder: (buildContext) => PokemonDetailPage(1))),
+                              builder: (buildContext) => PokemonDetailPage(1, null))),
                   child: Text("Pokemon detail")),
             ],
           ),

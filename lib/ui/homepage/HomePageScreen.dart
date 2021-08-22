@@ -69,7 +69,8 @@ class HomePageState extends State<HomePage> {
           // pinned = true => luôn thấy appbar
           pinned: true,
         ),
-        _buildImages()
+        // _buildImages()
+        SliverFillRemaining(child: Container(color: Colors.white,),)
       ],
     );
   }

@@ -30,6 +30,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: ^0.13.3
   cached_network_image: ^3.1.0
+  snapping_page_scroll: ^2.0.2
+  fluttertoast: ^8.0.8
 
 dev_dependencies:
   flutter_test:

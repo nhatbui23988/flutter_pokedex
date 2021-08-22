@@ -25,7 +25,9 @@ class ApiService {
   static String getPokemonSpeciesUrl(int pokemonId) =>
       "$urlPokemonSpecies/$pokemonId";
 
-  static String getPokemonDetailUrl(int pokemonId) => "$urlPokemon/$pokemonId";
+  static String getPokemonDetaiByIdlUrl(int pokemonId) => "$urlPokemon/$pokemonId";
+
+  static String getPokemonDetailByNameUrl(String pokemonName) => "$urlPokemon/$pokemonName";
 
   static Future<List<PokemonInfo>> fetchPokedex(int offset, int limit) async {
     print("fetchPokedex");
@@ -63,14 +65,29 @@ class ApiService {
     }
   }
 
-  static Future<PokemonDetail?> getPokemonDetail(int pokemonId) async {
+  static Future<PokemonDetail?> getPokemonDetailByID(int pokemonId) async {
     print("getPokemonDetail");
-    print("#1 Url ${getPokemonDetailUrl(pokemonId)}");
-    final response = await http.get(Uri.parse(getPokemonDetailUrl(pokemonId)));
+    print("#1 Url ${getPokemonDetaiByIdlUrl(pokemonId)}");
+    final response = await http.get(Uri.parse(getPokemonDetaiByIdlUrl(pokemonId)));
     if (response.statusCode == 200) {
       print("#2 response.statusCode == 200");
       PokemonDetail pokemonDetail =
           PokemonDetail.fromJson(jsonDecode(response.body));
+      return pokemonDetail;
+    } else {
+      print("#2 response.statusCode = ${response.statusCode}");
+      return null;
+    }
+  }
+
+  static Future<PokemonDetail?> getPokemonDetailByName(String pokemonName) async {
+    print("getPokemonDetail");
+    print("#1 Url ${getPokemonDetailByNameUrl(pokemonName)}");
+    final response = await http.get(Uri.parse(getPokemonDetailByNameUrl(pokemonName)));
+    if (response.statusCode == 200) {
+      print("#2 response.statusCode == 200");
+      PokemonDetail pokemonDetail =
+      PokemonDetail.fromJson(jsonDecode(response.body));
       return pokemonDetail;
     } else {
       print("#2 response.statusCode = ${response.statusCode}");

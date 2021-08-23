@@ -43,12 +43,13 @@ class PokemonDetailState extends State<PokemonDetailPage>
   ScrollController _scrollController = ScrollController();
   late AnimationController _animationController;
 
-  int get _pokemonId => widget._pokemonId;
+  int _pokemonId = 0;
 
   PokemonDetail? get _pokemonSearchResult => widget._pokemonDetail;
 
   @override
   void initState() {
+    _pokemonId = widget._pokemonId;
     _scrollController.addListener(onScroll);
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 5));
@@ -145,7 +146,8 @@ class PokemonDetailState extends State<PokemonDetailPage>
                         this._largeTitleSize,
                         this._extendAppBarHeight,
                         this._flexSpaceMarginTop,
-                        this._pokemonDetail?.listType ?? []),
+                        this._pokemonDetail?.listType ?? [],
+                        onChangedPokemonId),
                     TabBarInformationHeader(_isPinned, _backgroundColor)
                   ];
                 },
@@ -184,6 +186,12 @@ class PokemonDetailState extends State<PokemonDetailPage>
         ),
         visible: _isVisibleLoading,
       );
+
+  void onChangedPokemonId(int pokemonId) {
+    _pokemonId = pokemonId;
+    getPokemonDetail(pokemonId);
+    getPokemonSpecies(pokemonId);
+  }
 
   @override
   void dispose() {

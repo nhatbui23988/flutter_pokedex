@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:pokedex_project/domain/ApiService.dart';
 import 'package:pokedex_project/extension/StringExtension.dart';
 import 'package:pokedex_project/model/Pokemon.dart';
+import 'package:pokedex_project/model/PokemonDetail.dart';
 import 'package:pokedex_project/ui/pokemondetailpage/PokemonDetailPage.dart';
+import 'package:pokedex_project/utils/color_utils.dart';
 import 'package:pokedex_project/utils/image_utils.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class PokedexPage extends StatefulWidget {
   @override
@@ -17,6 +20,7 @@ const int itemsPerPage = 50;
 class PokedexPageState extends State<PokedexPage>
     with TickerProviderStateMixin {
   int _offset = 0;
+  PokemonDetail? _pokemonSearch;
   List<PokemonInfo> _pokemonList = [];
 
   ScrollController _scrollController = ScrollController();
@@ -92,6 +96,15 @@ class PokedexPageState extends State<PokedexPage>
               title: Text("Pokedex"),
               centerTitle: true,
               leading: Icon(null),
+              expandedHeight: 120,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  margin: EdgeInsets.only(bottom: 30),
+                  alignment: Alignment.bottomCenter,
+                  child: _buildSearchView(),
+                ),
+              ),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(
                 bottom: Radius.circular(30),
@@ -100,8 +113,8 @@ class PokedexPageState extends State<PokedexPage>
             padding: EdgeInsets.all(6),
             sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                    (buildContext, index) =>
-                        buildPokemonCard(buildContext, index + 1, _pokemonList[index]),
+                    (buildContext, index) => buildPokemonCard(
+                        buildContext, index + 1, _pokemonList[index]),
                     childCount: _pokemonList.length),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     mainAxisSpacing: 6,
@@ -123,56 +136,112 @@ class PokedexPageState extends State<PokedexPage>
       ),
     );
   }
-}
 
-Widget buildPokemonCard(
-    BuildContext context, int index, PokemonInfo pokemonInfo) {
-  return Container(
-      margin: EdgeInsets.all(3),
-      padding: EdgeInsets.only(top: 6),
+  Widget _buildSearchView() => Container(
+      padding: EdgeInsets.all(4),
+      margin: EdgeInsets.symmetric(horizontal: 30),
       decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12))),
-          shadows: [
-            BoxShadow(offset: Offset(3, 3), color: Colors.grey, blurRadius: 1)
-          ]),
-      child: TextButton(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                margin: EdgeInsets.only(right: 12),
-                child: Text(
-                  "#$index",
-                  style:
-                      TextStyle(fontSize: 14, decoration: TextDecoration.none),
-                ),
-              ),
+        shape: StadiumBorder(
+            side: BorderSide(
+                width: 0.1, color: Colors.black, style: BorderStyle.solid)),
+        color: AppColors.grey,
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 6),
+          Icon(Icons.search_outlined),
+          SizedBox(width: 6),
+          Expanded(
+            // input field search here
+            child: TextField(
+              onSubmitted: onSearch,
+              style: TextStyle(fontSize: 16),
+              decoration: InputDecoration(
+                  isDense: true,
+                  hintText: "Search",
+                  // bỏ padding default của edit text
+                  contentPadding: EdgeInsets.zero,
+                  border: InputBorder.none),
             ),
-            Expanded(
-                child: CachedNetworkImage(
-              placeholder: (context, url) =>
-                  Image(image: ImageUtils.pokeball_logo),
-              imageUrl: ApiService.getPokemonImageUrl(index),
-            )),
-            Padding(
-              padding: EdgeInsets.all(6),
-              child: Center(
-                child: Text(
-                  pokemonInfo.name.capitalize(),
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.none,
-                      color: Colors.black),
+          ),
+        ],
+      ));
+
+  void onSearch(String keyword) {
+    print("onSearch");
+    print("#1 keyword: $keyword");
+    onStartSearch(keyword);
+  }
+
+  void onStartSearch(String keyword) async {
+    _pokemonSearch = await ApiService.getPokemonDetailByName(keyword);
+    if (_pokemonSearch == null) {
+      print("#2 _pokemonSearch == null");
+      Fluttertoast.showToast(
+          msg: "Không tìm thấy pokemon này",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      print("#2 _pokemonSearch ${_pokemonSearch?.name}");
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (builder) =>
+              PokemonDetailPage(_pokemonSearch?.id ?? 0, _pokemonSearch)));
+    }
+  }
+
+  Widget buildPokemonCard(
+      BuildContext context, int index, PokemonInfo pokemonInfo) {
+    return Container(
+        margin: EdgeInsets.all(3),
+        padding: EdgeInsets.only(top: 6),
+        decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12))),
+            shadows: [
+              BoxShadow(offset: Offset(3, 3), color: Colors.grey, blurRadius: 1)
+            ]),
+        child: TextButton(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  margin: EdgeInsets.only(right: 12),
+                  child: Text(
+                    "#$index",
+                    style: TextStyle(
+                        fontSize: 14, decoration: TextDecoration.none),
+                  ),
                 ),
               ),
-            )
-          ],
-        ),
-        onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (builder) => PokemonDetailPage(index, null))),
-      ));
+              Expanded(
+                  child: CachedNetworkImage(
+                placeholder: (context, url) =>
+                    Image(image: ImageUtils.pokeball_logo),
+                imageUrl: ApiService.getPokemonImageUrl(index),
+              )),
+              Padding(
+                padding: EdgeInsets.all(6),
+                child: Center(
+                  child: Text(
+                    pokemonInfo.name.capitalize(),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.none,
+                        color: Colors.black),
+                  ),
+                ),
+              )
+            ],
+          ),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (builder) => PokemonDetailPage(index, null))),
+        ));
+  }
 }

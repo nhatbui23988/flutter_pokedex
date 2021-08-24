@@ -34,7 +34,7 @@ class PokemonDetailBodyState extends State<PokemonDetailBodyWidget>
   //
   PokemonSpecies? _pokemonSpecies;
   PokemonDetail? _pokemonDetail;
-  Color? _backgroundColor;
+  Color? _backgroundColor = AppColors.black_20;
   String _pokemonName = "??????";
 
   //
@@ -151,7 +151,7 @@ class PokemonDetailBodyState extends State<PokemonDetailBodyWidget>
                 duration: Duration(milliseconds: 300),
                 child: Container(
                   alignment: Alignment.center,
-                  color: AppColors.black_50,
+                  color: AppColors.black_20,
                   child: CircularProgressIndicator(),
                 ),
               ),

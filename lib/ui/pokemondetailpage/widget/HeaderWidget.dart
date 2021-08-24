@@ -60,9 +60,6 @@ class PokemonDetailHeaderState extends State<PokemonDetailHeaderWidget> {
       centerTitle: true,
       backgroundColor: widget._backgroundColor,
       expandedHeight: widget._extendAppBarHeight,
-      actions: [
-        IconButton(onPressed: () => {}, icon: Icon(Icons.favorite_border))
-      ],
       title: Visibility(
         child: Text(
           widget._pokemonName,

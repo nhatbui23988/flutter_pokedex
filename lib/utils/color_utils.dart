@@ -7,6 +7,8 @@ class AppColors {
   static const Color grey_30 = Color(0x4DDCDCDC);
   static const Color white_95 = Color(0xfff2f2f2);
   static const Color black_50 = Color(0x80000000);
+  static const Color black_80 = Color(0xCC000000);
+  static const Color black_20 = Color(0x33000000);
 
   static Color colorType(String type) {
     var color = Colors.white;

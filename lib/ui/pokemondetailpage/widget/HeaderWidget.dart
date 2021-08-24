@@ -25,7 +25,7 @@ class PokemonDetailHeaderWidget extends StatefulWidget {
   final AnimationController _animationController;
   final _bgDecorOpacity = 0.15;
   final _bgDecorColor = Colors.white;
-  final void Function(int) onChangedPokemonId;
+  // final void Function(int) onChangedPokemonId;
 
   const PokemonDetailHeaderWidget(
       this._pokemonId,
@@ -37,8 +37,7 @@ class PokemonDetailHeaderWidget extends StatefulWidget {
       this._largeTitleSize,
       this._extendAppBarHeight,
       this._flexSpaceMarginTop,
-      this._listType,
-      this.onChangedPokemonId);
+      this._listType);
 
   @override
   PokemonDetailHeaderState createState() => PokemonDetailHeaderState();
@@ -49,7 +48,6 @@ class PokemonDetailHeaderState extends State<PokemonDetailHeaderWidget> {
 
   @override
   void initState() {
-    currentIndex = widget._pokemonId;
     super.initState();
   }
 
@@ -90,8 +88,8 @@ class PokemonDetailHeaderState extends State<PokemonDetailHeaderWidget> {
                     return Container(
                       child: Row(
                         children: [
-                          Container(
-                              // trừ di padding cua text
+                          Expanded(child: Container(
+                            // trừ di padding cua text
                               width: constraints.maxWidth / 2,
                               padding: EdgeInsets.only(left: 24),
                               child: Visibility(
@@ -106,10 +104,10 @@ class PokemonDetailHeaderState extends State<PokemonDetailHeaderWidget> {
                                   ),
                                 ),
                                 visible: !widget._isVisibleTitle,
-                              )),
+                              ))),
                           Container(
+                            margin: EdgeInsets.only(right: 28),
                             // pokemon index
-                            width: constraints.maxWidth / 2 - 24,
                             alignment: Alignment.centerRight,
                             child: Text(
                               widget._pokemonId.toString().toPokemonIndex(),
@@ -136,7 +134,38 @@ class PokemonDetailHeaderState extends State<PokemonDetailHeaderWidget> {
                             _buildPkmTypeName(widget._listType[index].name)),
                   ),
                   // display pokemon image
-                  _buildListPokemonScrollable()
+                  // _buildListPokemonScrollable()
+                  Expanded(
+                    child: LayoutBuilder(builder: (buildContext, constraints) {
+                      return Container(
+                        alignment: Alignment.bottomCenter,
+                        child: Stack(
+                          children: [
+                            // pokeball quay hình tròn
+                            AnimatedBuilder(
+                              animation: widget._animationController.view,
+                              builder: (buildContext, child) {
+                                return Transform.rotate(
+                                    angle:widget._animationController.value * 2 * pi,
+                                    child: Image(
+                                      height: constraints.maxHeight,
+                                      image: ImageUtils.pokeball_black,
+                                      color: Colors.white70,
+                                    ));
+                              },
+                            ),
+                            CachedNetworkImage(
+                              height: constraints.maxHeight - 20,
+                              imageUrl:
+                              ApiService.getPokemonImageUrl(widget._pokemonId),
+                            )
+                          ],
+                          alignment: Alignment.bottomCenter,
+                          fit: StackFit.passthrough,
+                        ),
+                      );
+                    }),
+                  )
                 ],
               ),
             ),
@@ -218,6 +247,7 @@ class PokemonDetailHeaderState extends State<PokemonDetailHeaderWidget> {
                   width: constraints.maxWidth,
                   height: constraints.maxHeight,
                   child: ScrollSnapList(
+                    updateOnScroll: false,
                     onItemFocus: onItemFocusChange,
                     dynamicItemSize: true,
                     itemSize: constraints.maxHeight,
@@ -271,7 +301,7 @@ class PokemonDetailHeaderState extends State<PokemonDetailHeaderWidget> {
   void onItemFocusChange(int index) {
     setState(() {
       currentIndex = index + 1;
-      widget.onChangedPokemonId(currentIndex);
+      // widget.onChangedPokemonId(currentIndex);
     });
   }
 }

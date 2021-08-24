@@ -127,9 +127,6 @@ class PokedexPageState extends State<PokedexPage>
 
 Widget buildPokemonCard(
     BuildContext context, int index, PokemonInfo pokemonInfo) {
-  print("buildPokemonCard");
-  print("#1 index: $index");
-  print("#2 name: ${pokemonInfo.name}");
   return Container(
       margin: EdgeInsets.all(3),
       padding: EdgeInsets.only(top: 6),

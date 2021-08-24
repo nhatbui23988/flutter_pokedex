@@ -5,10 +5,10 @@ import 'package:pokedex_project/model/PokemonSpecies.dart';
 import 'package:pokedex_project/extension/StringExtension.dart';
 
 class TabAboutPokemon extends StatelessWidget {
-  final PokemonSpecies? _pokemonSpcies;
+  final PokemonSpecies? _pokemonSpecies;
   final PokemonDetail? _pokemonDetail;
 
-  const TabAboutPokemon(this._pokemonSpcies, this._pokemonDetail);
+  const TabAboutPokemon(this._pokemonSpecies, this._pokemonDetail);
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +30,8 @@ class TabAboutPokemon extends StatelessWidget {
   Widget _buildDescriptionText() => Container(
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-        child: Text(
-          "\"${_pokemonSpcies?.listFlavorText[0].flavorText.replaceAll(RegExp("\n"), " ") ?? ""}\"",
+        child: _pokemonSpecies == null? Text("??????"): Text(
+          "\"${_pokemonSpecies?.listFlavorText[0].flavorText.replaceAll(RegExp("\n"), " ") ?? ""}\"",
           style: TextStyle(
               fontSize: 14,
               fontStyle: FontStyle.italic,

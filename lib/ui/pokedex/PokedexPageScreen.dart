@@ -170,7 +170,7 @@ class PokedexPageState extends State<PokedexPage>
   void onSearch(String keyword) {
     print("onSearch");
     print("#1 keyword: $keyword");
-    onStartSearch(keyword);
+    onStartSearch(keyword.toLowerCase().trim());
   }
 
   void onStartSearch(String keyword) async {

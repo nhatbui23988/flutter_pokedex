@@ -13,18 +13,21 @@ class TabBarInformationHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverPersistentHeader(
       pinned: _isPinned,
-      delegate: SliverTabBarDelegate(
-          Container(
+      delegate: SliverTabBarDelegate(Container(
+          child: Container(
             height: kToolbarHeight,
             alignment: Alignment.center,
-            child: Text("About Pokemon", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+            child: Text(
+              "About Pokemon",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(24))),
                 color: Colors.white),
           ),
-          _backgroundColor ?? Colors.white),
+          color: _backgroundColor)),
     );
   }
 }

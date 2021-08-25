@@ -135,7 +135,8 @@ class PokemonDetailBodyState extends State<PokemonDetailBodyWidget>
                       this._extendAppBarHeight,
                       this._flexSpaceMarginTop,
                       this._pokemonDetail?.listType ?? []),
-                  TabBarInformationHeader(_isPinned, _backgroundColor)
+                  // if bg == AppColors.black_20 -> chưa lấy được data từ api -> set bg = white
+                  TabBarInformationHeader(_isPinned, _backgroundColor == AppColors.black_20 ? Colors.white : _backgroundColor)
                 ];
               },
               body: TabAboutPokemon(_pokemonSpecies, _pokemonDetail),
@@ -166,6 +167,7 @@ class PokemonDetailBodyState extends State<PokemonDetailBodyWidget>
     print("===> dispose <===");
     print("_pokemonId : $_pokemonId ");
     _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }
